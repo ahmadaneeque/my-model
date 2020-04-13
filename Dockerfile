@@ -1,24 +1,17 @@
-FROM python:3.7-buster
+FROM node:10-alpine
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive && apt-get install -y \
-   curl \
-   python3-setuptools && \
-apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
-COPY requirements.txt .
-RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm -f get-pip.py
+WORKDIR /home/node/app
 
-RUN pip3 install --no-cache numpy Pillow seldon-core
+COPY package*.json ./
 
-# Seldon Core specific
-COPY . /microservice
-WORKDIR /microservice
+USER node
 
-ENV MODEL_NAME MyModel
-ENV API_TYPE REST
-ENV SERVICE_TYPE MODEL
-ENV PERSISTENCE 0
+RUN npm install
 
-CMD exec seldon-core-microservice $MODEL_NAME $API_TYPE --service-type $SERVICE_TYPE --persistence $PERSISTENCE
+COPY --chown=node:node . .
 
-EXPOSE 5000
+EXPOSE 8080
+
+CMD [ "node", "app.js" ]
