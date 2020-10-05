@@ -1,9 +1,6 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.7
-
-RUN pip install xlrd
-RUN pip install python-dateutil
-RUN pip install reportlab
-RUN pip install icalendar
-RUN pip install flask_bootstrap
-
+FROM python:3.7.3-alpine 
 COPY . /app
+WORKDIR /app
+RUN pip install -r requirements.txt
+ENTRYPOINT ["python"]
+CMD ["producer.py"]
