@@ -20,7 +20,7 @@ count = 0
 
 while True:
    message = 'Hello World! %s'% count
-   channel.basic_publish(exchange='', routing_key=message, body=message)  #for single consumer of message 
+   channel.basic_publish(exchange='hello', routing_key=message, body=message)  #for single consumer of message 
 #   channel.basic_publish(exchange='logs', routing_key='', body=message)   # for multiple consumer of same message
 
    count+=1	
