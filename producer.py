@@ -2,10 +2,10 @@ import os
 import pika
 import time
 
-rabbit_host = os.getenv("RABBIT_HOST",'rabbit')
-rabbit_port = os.getenv("RABBIT_PORT", 5672) 
-rabbit_user = os.getenv("RABBIT_USERNAME", 'guest')
-rabbit_password = os.getenv("RABBIT_PASSWORD", 'guest') 
+rabbit_host = os.getenv("RABBIT_HOST")
+rabbit_port = os.getenv("RABBIT_PORT") 
+rabbit_user = os.getenv("RABBIT_USERNAME")
+rabbit_password = os.getenv("RABBIT_PASSWORD") 
 
 credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
 
@@ -20,7 +20,7 @@ count = 0
 
 while True:
    message = 'Hello World! %s'% count
-   channel.basic_publish(exchange='hello', routing_key=message, body=message)  #for single consumer of message 
+   channel.basic_publish(exchange='', routing_key='hello', body=message)  #for single consumer of message 
 #   channel.basic_publish(exchange='logs', routing_key='', body=message)   # for multiple consumer of same message
 
    count+=1	
