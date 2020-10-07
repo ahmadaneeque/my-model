@@ -18,7 +18,7 @@ result = channel.queue_declare('', exclusive=True)
 queue_name = result.method.queue
 
 #binding_keys = sys.argv[1:]
-binding_keys = ["*.critical"]
+binding_keys = ["topic2"]
 if not binding_keys:
     sys.stderr.write("Usage: %s [binding_key]...\n" % sys.argv[0])
     sys.exit(1)
