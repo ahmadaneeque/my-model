@@ -1,41 +1,47 @@
 #!/usr/bin/env python
 import pika, sys, os
 
+
+def main():
+    
+#!/usr/bin/env python
+import pika
+import sys
+
+
 rabbit_host = os.getenv("RABBIT_HOST")
 rabbit_port = os.getenv("RABBIT_PORT") 
 rabbit_user = os.getenv("RABBIT_USERNAME")
 rabbit_password = os.getenv("RABBIT_PASSWORD")  
 
 
-def main():
-    credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbit_host, port=rabbit_port, credentials=credentials))
+credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+		host=rabbit_host, port=rabbit_port, credentials=credentials))
+channel = connection.channel()
 
-    channel = connection.channel()
-    channel.queue_declare(queue='hello') # for single message consumer
+channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
 
-   # channel.exchange_declare(exchange='logs', exchange_type='fanout')    # for multiple consumer of same message
+result = channel.queue_declare('', exclusive=True)
+queue_name = result.method.queue
 
-  #  result = channel.queue_declare(queue='', exclusive=True)   # create a queue exclusively for this consumer
-    # queue_name = result.method.queue
-    #channel.queue_bind(exchange='logs', queue=queue_name)
+#binding_keys = sys.argv[1:]
+binding_keys = ["*.critical"]
+if not binding_keys:
+    sys.stderr.write("Usage: %s [binding_key]...\n" % sys.argv[0])
+    sys.exit(1)
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-    
-    def callback(ch, method, properties, body):
-        print(" [x] Received %r" % body)
+for binding_key in binding_keys:
+    channel.queue_bind(exchange='topic_logs', queue=queue_name, routing_key=binding_key)
 
-    channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True) 
-  #  channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+print(' [*] Waiting for logs. To exit press CTRL+C')
 
-    channel.start_consuming()
 
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+def callback(ch, method, properties, body):
+    print(" [x] %r:%r" % (method.routing_key, body))
+
+
+channel.basic_consume(
+    queue=queue_name, on_message_callback=callback, auto_ack=True)
+
+channel.start_consuming()
