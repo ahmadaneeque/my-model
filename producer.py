@@ -14,7 +14,7 @@ channel = connection.channel()
 
 channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
 
-sleepTime = 2
+sleepTime = 1
 count = 0
 
 while True:
@@ -23,8 +23,9 @@ while True:
 	message = 'Hello World! %s'% count
 	channel.basic_publish(exchange='topic_logs', routing_key=routing_key, body=message)
 	print(" [x] Sent %r:%r" % (routing_key, message))
-
-	routing_key = 'A critical kernel error'
+	time.sleep(sleepTime)
+	
+	routing_key = 'topic2'
 	message = 'kernal hello %s'% count
 	channel.basic_publish(exchange='topic_logs', routing_key=routing_key, body=message)
 	print(" [x] Sent %r:%r" % (routing_key, message))
