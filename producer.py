@@ -12,20 +12,24 @@ credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbit_host, port=rabbit_port, credentials=credentials))
 channel = connection.channel()
 
-channel.queue_declare(queue='hello')  # for single message consumer  will not be created for multiple consumers here
-#channel.exchange_declare(exchange='logs', exchange_type='fanout')  # for multiple consumer of same message
+channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
 
 sleepTime = 2
 count = 0
 
 while True:
-   message = 'Hello World! %s'% count
-   channel.basic_publish(exchange='', routing_key='hello', body=message)  #for single consumer of message 
-#   channel.basic_publish(exchange='logs', routing_key='', body=message)   # for multiple consumer of same message
 
-   count+=1	
-   print(" [x] Sent 'Hello World!'")
+	routing_key = 'kern.cons'
+	message = 'Hello World! %s'% count
+	channel.basic_publish(exchange='topic_logs', routing_key=routing_key, body=message)
+	print(" [x] Sent %r:%r" % (routing_key, message))
 
-   time.sleep(sleepTime)
+	routing_key = 'A critical kernel error'
+	message = 'kernal hello %s'% count
+	channel.basic_publish(exchange='topic_logs', routing_key=routing_key, body=message)
+	print(" [x] Sent %r:%r" % (routing_key, message))
+
+	count+=1	
+	time.sleep(sleepTime)
 
 connection.close()
