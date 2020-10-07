@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 import pika, sys, os
 
-
-def main():
-    
-#!/usr/bin/env python
-import pika
-import sys
-
-
 rabbit_host = os.getenv("RABBIT_HOST")
 rabbit_port = os.getenv("RABBIT_PORT") 
 rabbit_user = os.getenv("RABBIT_USERNAME")
