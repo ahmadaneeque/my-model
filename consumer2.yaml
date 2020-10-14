@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-consumer2
+  labels:
+    app: rabbitmq-consumer2
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq-consumer2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-consumer2
+    spec:
+      containers:
+      - name: rabbitmq-consumer2
+        image: aneequekhalid/my-model:rabbitconsumer2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: RABBIT_HOST 
+          value: "rabbitmq-0.rabbitmq.rabbits.svc.cluster.local"
+        - name: RABBIT_PORT
+          value: "5672"
+        - name: RABBIT_USERNAME
+          value: "guest"
+        - name: RABBIT_PASSWORD
+          value: "guest"
+
+
