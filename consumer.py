@@ -1,15 +1,26 @@
 #!/usr/bin/env python
-import pika, sys, os
+import pika
+import sys
+from os import getenv
 
-rabbit_host = os.getenv("RABBIT_HOST")
-rabbit_port = os.getenv("RABBIT_PORT") 
-rabbit_user = os.getenv("RABBIT_USERNAME")
-rabbit_password = os.getenv("RABBIT_PASSWORD")  
+rabbit_service_name = getenv("RABBIT_SVC")
+rabbit_namespace = getenv("RABBIT_NAMESPACE")
+domain = getenv("DOMAIN")
+rabbit_port = getenv("RABBIT_PORT")
 
+rabbit_user = getenv("RABBIT_USERNAME")
+rabbit_password = getenv("RABBIT_PASSWORD")
 
+rabbit_host = '%s.%s.svc.%s' % (rabbit_service_name, rabbit_namespace, domain)
 credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-		host=rabbit_host, port=rabbit_port, credentials=credentials))
+
+try:
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host=rabbit_host, port=rabbit_port, credentials=credentials))
+except Exception as e:
+    raise e
+
+
 channel = connection.channel()
 
 channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
@@ -17,7 +28,7 @@ channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
 result = channel.queue_declare('', exclusive=True)
 queue_name = result.method.queue
 
-#binding_keys = sys.argv[1:]
+# binding_keys = sys.argv[1:]
 binding_keys = ["kern.*"]
 if not binding_keys:
     sys.stderr.write("Usage: %s [binding_key]...\n" % sys.argv[0])
